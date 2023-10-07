@@ -6,6 +6,7 @@ var logger = require('morgan');
 const mongoose = require('mongoose');
 const users = require('./routes/users');
 const activities = require('./routes/activities');
+require('./scheduler/scheduler');
 
 mongoose.Promise = global.Promise;
 mongoose

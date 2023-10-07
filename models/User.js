@@ -29,7 +29,14 @@ const UserSchemamm = new mongoose.Schema({
     minlength: 6,
     match: /^[A-Za-z0-9_]+$/, // Allows letters, numbers, and underscores
     unique: true,
-    immutable: true, // This makes the field read-only after initial creation
+    //immutable: true, // This makes the field read-only after initial creation
+  },
+  updates: {
+    type: Number,
+    default: 0,
+  },
+  lastUpdateTimestamp: {
+    type: Date,
   },
   user_password: {
     type: String,
@@ -63,6 +70,10 @@ const UserSchemamm = new mongoose.Schema({
   user_coin: {
     type: Number,
     default: 0,
+  },
+  balance: {
+    type: Number,
+    default: 30000,
   },
   user_status: {
     type: Number,
@@ -98,6 +109,37 @@ UserSchemamm.pre('findOneAndUpdate', async function (next) {
   } catch (error) {
     next(error);
   }
+});
+
+UserSchemamm.pre('save', async function (next) {
+  if (!this.isModified('user_username')) {
+    return next();
+  }
+
+  if (this.updates === 0 && this.lastUpdateTimestamp === undefined) {
+    // First update, or no previous update
+    this.updates = 1;
+  } else if (this.updates === 1) {
+    this.updates = 0;
+    this.lastUpdateTimestamp = new Date();
+    return next();
+  } else {
+    // Check if it's been 7 days since the last update
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+    if (this.lastUpdateTimestamp > sevenDaysAgo) {
+      throw new Error(
+        'Username update is restricted within 7 days of the last update.'
+      );
+    }
+
+    // Reset the cooldown period
+    this.updates = 0;
+  }
+
+  this.lastUpdateTimestamp = new Date();
+  next();
 });
 
 module.exports = mongoose.model('User', UserSchemamm);
