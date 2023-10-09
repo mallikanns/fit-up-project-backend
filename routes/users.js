@@ -32,6 +32,7 @@ router.get('/:id', async (req, res, next) => {
     }
 
     const imagePath = path.join(__dirname, '..', user.user_image);
+    console.log('imgPath => ', imagePath);
     // const imagePath = user.user_image;
 
     console.log('Constructed imagePath:', imagePath);
