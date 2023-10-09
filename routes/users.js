@@ -1,5 +1,7 @@
 const express = require('express');
 const router = express.Router();
+const fs = require('fs');
+const path = require('path'); // Import the 'path' module
 const mongoose = require('mongoose');
 const User = require('../models/User.js');
 const bcrypt = require('bcrypt');
@@ -9,17 +11,46 @@ const { upload } = require('../middleware/multer.js'); // Import the multer conf
 router.get('/', async (req, res, next) => {
   try {
     const users = await User.find().select('-user_password').exec();
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
     res.json(users);
   } catch (err) {
     next(err);
   }
 });
 
-//get user single user
+// GET a single user's data, including their profile image
 router.get('/:id', async (req, res, next) => {
   try {
-    const users = await User.findById(req.params.id).select('-user_password');
-    res.json(users);
+    const user = await User.findById(req.params.id).select('-user_password');
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const imagePath = path.join(__dirname, '..', user.user_image);
+
+    // Check if the image file exists
+    if (!fs.existsSync(imagePath)) {
+      return res.status(404).json({ error: 'Image not found' });
+    }
+
+    // Read the image file as a binary buffer
+    const imageBuffer = fs.readFileSync(imagePath);
+
+    // Convert the image buffer to a base64-encoded string
+    const base64Image = imageBuffer.toString('base64');
+
+    // Include the base64-encoded image in the API response
+    const userDataWithImage = {
+      ...user.toObject(), // Convert Mongoose document to plain object
+      imgBase64: base64Image,
+    };
+
+    res.json(userDataWithImage);
   } catch (err) {
     next(err);
   }

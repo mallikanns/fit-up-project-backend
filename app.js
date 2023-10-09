@@ -6,6 +6,7 @@ var logger = require('morgan');
 const mongoose = require('mongoose');
 const users = require('./routes/users');
 const activities = require('./routes/activities');
+const cors = require('cors'); // Import the 'cors' middleware
 require('./scheduler/usersScheduler');
 
 mongoose.Promise = global.Promise;
@@ -17,6 +18,14 @@ mongoose
   .catch((err) => console.error(err));
 
 var app = express();
+
+app.use(
+  cors({
+    origin: 'http://localhost:5173', // Allow requests from this origin
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true, // Enable CORS credentials if needed (cookies, authentication, etc.)
+  })
+);
 
 app.use(logger('dev'));
 app.use(express.json());
