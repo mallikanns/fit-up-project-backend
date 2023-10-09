@@ -31,8 +31,8 @@ router.get('/:id', async (req, res, next) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    // const imagePath = path.join(__dirname, '..', user.user_image);
-    const imagePath = user.user_image;
+    const imagePath = path.join(__dirname, '..', user.user_image);
+    // const imagePath = user.user_image;
 
     console.log('Constructed imagePath:', imagePath);
 
