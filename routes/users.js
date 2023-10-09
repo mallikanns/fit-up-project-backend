@@ -5,6 +5,7 @@ const User = require('../models/User.js');
 const bcrypt = require('bcrypt');
 const { upload } = require('../middleware/multer.js'); // Import the multer configuration
 
+//get users all
 router.get('/', async (req, res, next) => {
   try {
     const users = await User.find().select('-user_password').exec();
@@ -14,6 +15,7 @@ router.get('/', async (req, res, next) => {
   }
 });
 
+//get user single user
 router.get('/:id', async (req, res, next) => {
   try {
     const users = await User.findById(req.params.id).select('-user_password');
@@ -23,6 +25,7 @@ router.get('/:id', async (req, res, next) => {
   }
 });
 
+//create user
 router.post('/', upload.single('user_image'), async (req, res, next) => {
   try {
     const { user_username } = req.body;
@@ -127,6 +130,52 @@ router.post('/login', async (req, res, next) => {
     res.json({ message: 'Login successful', user });
   } catch (err) {
     next(err);
+  }
+});
+
+// route for updating the user's coin
+router.post('/update-coin/:id', async (req, res) => {
+  try {
+    const { coinReceived } = req.body;
+    const userId = req.params.id;
+
+    // Find the user by their ID
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Check if the user's balance is greater than or equal to the amount to delete
+    if (user.balance >= coinReceived) {
+      // Subtract the amount to delete from the balance
+      user.balance -= coinReceived;
+
+      // Add the deleted amount to the user's coins
+      user.user_coin += coinReceived;
+
+      // Save the updated user document
+      await user.save();
+
+      return res.json({ message: 'Coin updated successfully' });
+    } else if (user.balance < coinReceived && user.balance !== 0) {
+      // Add the remaining balance to user's coins
+      user.user_coin += user.balance;
+
+      user.balance = 0;
+
+      // Save the updated user document
+      await user.save();
+
+      return res.json({ message: 'Coin updated successfully' });
+    } else {
+      return res.json({
+        message: 'You have received all your coins this week.',
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Server error' });
   }
 });
 
