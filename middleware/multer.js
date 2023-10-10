@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 // Define the destination folder for uploaded images
-const destinationFolder = 'public/images/Profile';
+const destinationFolder = path.join('public', 'images', 'Profile');
 
 // Ensure the destination folder exists, or create it if it doesn't
 if (!fs.existsSync(destinationFolder)) {
