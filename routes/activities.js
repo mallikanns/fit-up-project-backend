@@ -21,7 +21,7 @@ router.get('/:id', async (req, res, next) => {
   }
 });
 
-router.get('/getWithDate/:id', async (req, res, next) => {
+router.post('/getWithDate/:id', async (req, res, next) => {
   try {
     const startDate = new Date(req.body.startDate); // Get the start date from query parameters
     const endDate = new Date(req.body.endDate); // Get the end date from query parameters
