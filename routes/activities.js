@@ -27,16 +27,16 @@ router.get('/getToday/:id', async (req, res, next) => {
     startDate.setUTCHours(0, 0, 0, 0);
     const endDate = new Date();
     endDate.setUTCHours(0, 0, 0, 0);
-    endDate.setDate(startDate.getDate()+1)
+    endDate.setDate(startDate.getDate() + 1);
 
-    console.log('startDate',startDate.toISOString());
+    console.log('startDate', startDate.toISOString());
     console.log('endDate', endDate.toISOString());
 
     const activities = await Activity.find({
       activity_userID: req.params.id,
       activity_date: {
-        $gte: startDate, 
-        $lte: endDate, 
+        $gte: startDate,
+        $lte: endDate,
       },
     });
 

@@ -31,38 +31,14 @@ router.get('/:id', async (req, res, next) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    // const imagePath = path.join(__dirname, '..', user.user_image);
-    const imagePath = user.user_image;
-
-    console.log('Constructed imagePath:', imagePath);
-
-    console.log(imagePath);
-    // Check if the image file exists
-    if (!fs.existsSync(imagePath)) {
-      console.log('Image not found at:', imagePath);
-      return res.status(404).json({ error: 'Image not found' });
-    }
-
-    // Read the image file as a binary buffer
-    const imageBuffer = fs.readFileSync(imagePath);
-
-    // Convert the image buffer to a base64-encoded string
-    const base64Image = imageBuffer.toString('base64');
-
-    // Include the base64-encoded image in the API response
-    const userDataWithImage = {
-      ...user.toObject(), // Convert Mongoose document to plain object
-      imgBase64: base64Image,
-    };
-
-    res.json(userDataWithImage);
+    res.json(user);
   } catch (err) {
     next(err);
   }
 });
 
 //create user
-router.post('/', upload.single('user_image'), async (req, res, next) => {
+router.post('/', async (req, res, next) => {
   try {
     const { user_username } = req.body;
 
@@ -72,15 +48,8 @@ router.post('/', upload.single('user_image'), async (req, res, next) => {
       return res.status(404).json({ message: 'Username is already used' });
     }
 
-    // Check if req.file is defined and contains the uploaded image
-    const userImagePath = req.file
-      ? req.file.path
-      : 'public\\images\\Profile\\default_img.jpg';
-
-    // Create a new user object with the uploaded image path
     const newUser = new User({
       ...req.body,
-      user_image: userImagePath,
     });
 
     // Save the user to the database
@@ -92,18 +61,10 @@ router.post('/', upload.single('user_image'), async (req, res, next) => {
   }
 });
 
-router.put('/:id', upload.single('user_image'), async (req, res, next) => {
+router.put('/:id', async (req, res, next) => {
   try {
     const userId = req.params.id;
     const updatedData = req.body;
-
-    updatedData.user_image = 'public\\images\\Profile\\default_img.jpg';
-
-    // Check if the request included an image update
-    if (req.file) {
-      // If an image was uploaded, update the user_image field with the new path
-      updatedData.user_image = req.file.path;
-    }
 
     // Find the user by ID
     const user = await User.findById(userId);
@@ -118,9 +79,6 @@ router.put('/:id', upload.single('user_image'), async (req, res, next) => {
 
     // Validate the user document
     const validationError = user.validateSync();
-
-    console.log(validationError);
-    console.log(updatedData);
 
     if (validationError) {
       // If there are validation errors, return an error response
@@ -210,7 +168,6 @@ router.post('/update-coin/:id', async (req, res) => {
       });
     }
   } catch (error) {
-    console.error(error);
     return res.status(500).json({ message: 'Server error' });
   }
 });
