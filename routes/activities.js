@@ -21,7 +21,32 @@ router.get('/:id', async (req, res, next) => {
   }
 });
 
-router.post('/getWithDate/:id', async (req, res, next) => {
+router.get('/getToday/:id', async (req, res, next) => {
+  try {
+    const startDate = new Date();
+    startDate.setUTCHours(0, 0, 0, 0);
+    const endDate = new Date();
+    endDate.setUTCHours(0, 0, 0, 0);
+    endDate.setDate(startDate.getDate() + 1);
+
+    console.log('startDate', startDate.toISOString());
+    console.log('endDate', endDate.toISOString());
+
+    const activities = await Activity.find({
+      activity_userID: req.params.id,
+      activity_date: {
+        $gte: startDate,
+        $lte: endDate,
+      },
+    });
+
+    res.json(activities);
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.get('/getWithDate/:id', async (req, res, next) => {
   try {
     const startDate = new Date(req.body.startDate); // Get the start date from query parameters
     const endDate = new Date(req.body.endDate); // Get the end date from query parameters
