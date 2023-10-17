@@ -19,13 +19,7 @@ mongoose
 
 var app = express();
 
-app.use(
-  cors({
-    origin: 'http://localhost:5173', // Allow requests from this origin
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    credentials: true, // Enable CORS credentials if needed (cookies, authentication, etc.)
-  })
-);
+app.use(cors());
 
 app.use(logger('dev'));
 app.use(express.json());
