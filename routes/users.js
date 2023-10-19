@@ -9,9 +9,10 @@ const jwt = require('jsonwebtoken');
 const verifyToken = require('../middleware/verifyToken.js');
 
 //get users all
-router.get('/', verifyToken, async (req, res, next) => {
+router.get('/', async (req, res, next) => {
   try {
-    const users = await User.find().select('-user_password').exec();
+    // const users = await User.find().select('-user_password').exec();
+    const users = await User.find();
 
     if (!users) {
       return res.status(404).json({ error: 'User not found' });
@@ -49,6 +50,11 @@ router.post('/', async (req, res, next) => {
       return res.status(404).json({ message: 'Username is already used' });
     }
 
+    const salt = await bcrypt.genSalt(12);
+    const hashedPassword = await bcrypt.hash(req.body.user_password, salt);
+
+    req.body.user_password = hashedPassword;
+
     const newUser = new User({
       ...req.body,
     });
@@ -73,6 +79,17 @@ router.put('/:id', verifyToken, async (req, res, next) => {
     // If the user doesn't exist, return an error response
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
+    }
+
+    const isChangePassword = await bcrypt.compare(
+      updatedData.user_password,
+      user.user_password
+    );
+
+    if (!isChangePassword) {
+      const salt = await bcrypt.genSalt(12);
+      const hashedPassword = await bcrypt.hash(updatedData.user_password, salt);
+      updatedData.user_password = hashedPassword;
     }
 
     // Update the user's data with the provided updates
