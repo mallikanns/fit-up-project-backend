@@ -131,6 +131,8 @@ router.put('/:id', verifyToken, async (req, res, next) => {
 router.post('/login', async (req, res, next) => {
   const { user_email, user_password } = req.body;
 
+  console.log(user_email, user_password);
+
   try {
     // Find the user by username
     const user = await User.findOne({ user_email });
