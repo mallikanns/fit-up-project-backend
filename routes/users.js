@@ -5,10 +5,11 @@ const path = require('path'); // Import the 'path' module
 const mongoose = require('mongoose');
 const User = require('../models/User.js');
 const bcrypt = require('bcrypt');
-const { upload } = require('../middleware/multer.js'); // Import the multer configuration
+const jwt = require('jsonwebtoken');
+const verifyToken = require('../middleware/verifyToken.js');
 
 //get users all
-router.get('/', async (req, res, next) => {
+router.get('/', verifyToken, async (req, res, next) => {
   try {
     const users = await User.find().select('-user_password').exec();
 
@@ -23,7 +24,7 @@ router.get('/', async (req, res, next) => {
 });
 
 // GET a single user's data, including their profile image
-router.get('/:id', async (req, res, next) => {
+router.get('/:id', verifyToken, async (req, res, next) => {
   try {
     const user = await User.findById(req.params.id).select('-user_password');
 
@@ -61,7 +62,7 @@ router.post('/', async (req, res, next) => {
   }
 });
 
-router.put('/:id', async (req, res, next) => {
+router.put('/:id', verifyToken, async (req, res, next) => {
   try {
     const userId = req.params.id;
     const updatedData = req.body;
@@ -97,12 +98,42 @@ router.put('/:id', async (req, res, next) => {
   }
 });
 
+// router.post('/login', async (req, res, next) => {
+//   const { user_username, user_password } = req.body;
+
+//   try {
+//     // Find the user by username
+//     const user = await User.findOne({ user_username });
+
+//     // If no user is found, send an error
+//     if (!user) {
+//       return res.status(404).json({ message: 'User not found' });
+//     }
+
+//     // Compare the provided password with the hashed password in the database
+//     const isPasswordValid = await bcrypt.compare(
+//       user_password,
+//       user.user_password
+//     );
+
+//     // If passwords don't match, send an error
+//     if (!isPasswordValid) {
+//       return res.status(401).json({ message: 'Invalid username or password' });
+//     }
+
+//     // If everything is valid, send the user information as a response
+//     res.json({ message: 'Login successful', user });
+//   } catch (err) {
+//     next(err);
+//   }
+// });
+
 router.post('/login', async (req, res, next) => {
-  const { user_username, user_password } = req.body;
+  const { user_email, user_password } = req.body;
 
   try {
     // Find the user by username
-    const user = await User.findOne({ user_username });
+    const user = await User.findOne({ user_email });
 
     // If no user is found, send an error
     if (!user) {
@@ -120,15 +151,32 @@ router.post('/login', async (req, res, next) => {
       return res.status(401).json({ message: 'Invalid username or password' });
     }
 
-    // If everything is valid, send the user information as a response
-    res.json({ message: 'Login successful', user });
+    // Construct the payload for the JWT token
+    const payload = {
+      _id: user._id,
+      firstname: user.user_firstName,
+      lastname: user.user_lastName,
+      username: user.user_username,
+      email: user.user_email,
+    };
+
+    // Generate a JWT token with the custom payload
+    const token = await jwt.sign(payload, process.env.SECRET_KEY, {
+      expiresIn: '1h', // Token will expire in 1 hour
+    });
+
+    // Set the token in the response header
+    res.setHeader('Authorization', `Bearer ${token}`);
+
+    // Return the token and user information as a response
+    res.json({ message: 'Login successful' });
   } catch (err) {
     next(err);
   }
 });
 
 // route for updating the user's coin
-router.post('/update-coin/:id', async (req, res) => {
+router.post('/update-coin/:id', verifyToken, async (req, res) => {
   try {
     const { coinReceived } = req.body;
     const userId = req.params.id;

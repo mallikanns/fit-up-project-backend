@@ -2,8 +2,9 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 const Activity = require('../models/Activity.js');
+const verifyToken = require('../middleware/verifyToken.js');
 
-router.get('/', async (req, res, next) => {
+router.get('/', verifyToken, async (req, res, next) => {
   try {
     const activities = await Activity.find().exec();
     res.json(activities);
@@ -12,7 +13,7 @@ router.get('/', async (req, res, next) => {
   }
 });
 
-router.get('/:id', async (req, res, next) => {
+router.get('/:id', verifyToken, async (req, res, next) => {
   try {
     const activities = await Activity.find({ activity_userID: req.params.id });
     res.json(activities);
@@ -21,7 +22,7 @@ router.get('/:id', async (req, res, next) => {
   }
 });
 
-router.get('/getToday/:id', async (req, res, next) => {
+router.get('/getToday/:id', verifyToken, async (req, res, next) => {
   try {
     const startDate = new Date();
     startDate.setUTCHours(0, 0, 0, 0);
@@ -46,7 +47,7 @@ router.get('/getToday/:id', async (req, res, next) => {
   }
 });
 
-router.get('/getWithDate/:id', async (req, res, next) => {
+router.get('/getWithDate/:id', verifyToken, async (req, res, next) => {
   try {
     const startDate = new Date(req.body.startDate); // Get the start date from query parameters
     const endDate = new Date(req.body.endDate); // Get the end date from query parameters
@@ -66,7 +67,7 @@ router.get('/getWithDate/:id', async (req, res, next) => {
   }
 });
 
-router.post('/', async (req, res, next) => {
+router.post('/', verifyToken, async (req, res, next) => {
   try {
     const activities = await Activity.create(req.body);
     res.json(activities);
@@ -75,7 +76,7 @@ router.post('/', async (req, res, next) => {
   }
 });
 
-router.delete('/:id', async (req, res, next) => {
+router.delete('/:id', verifyToken, async (req, res, next) => {
   try {
     const activities = await Activity.findByIdAndDelete(req.params.id);
     res.json(activities);
