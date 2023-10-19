@@ -8,18 +8,24 @@ const users = require('./routes/users');
 const activities = require('./routes/activities');
 const cors = require('cors'); // Import the 'cors' middleware
 require('./scheduler/usersScheduler');
+require('dotenv').config();
 
 mongoose.Promise = global.Promise;
 mongoose
   .connect(
-    'mongodb+srv://admin:admin@cluster0.aqrmna5.mongodb.net/fit-up-project'
+    `mongodb+srv://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASSWORD}${process.env.MONGODB_URL}`
   )
   .then(() => console.log('connection successfully!'))
   .catch((err) => console.error(err));
 
 var app = express();
 
-app.use(cors());
+// app.use(cors());
+app.use(
+  cors({
+    exposedHeaders: ['Authorization'], // Specify the headers that you want to expose
+  })
+);
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
