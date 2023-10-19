@@ -86,17 +86,6 @@ const UserSchemamm = new mongoose.Schema({
   user_image: String,
 });
 
-UserSchemamm.pre('save', async function (next) {
-  try {
-    const salt = await bcrypt.genSalt(12);
-    const hashedPassword = await bcrypt.hash(this.user_password, salt);
-    this.user_password = hashedPassword;
-    next();
-  } catch (error) {
-    next(error);
-  }
-});
-
 UserSchemamm.pre('findOneAndUpdate', async function (next) {
   try {
     const update = this.getUpdate(); // Get the update object
