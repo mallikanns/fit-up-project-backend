@@ -57,6 +57,7 @@ router.post('/', async (req, res, next) => {
 
     const newUser = new User({
       ...req.body,
+      balance: 30000,
     });
 
     // Save the user to the database
