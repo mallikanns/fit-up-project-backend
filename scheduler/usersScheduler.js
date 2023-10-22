@@ -1,10 +1,13 @@
 const schedule = require('node-schedule');
 const User = require('../models/User'); // Import the User model or adjust the path as needed
 
+// Set the rule to trigger the job every Sunday at midnight
 const rule = new schedule.RecurrenceRule();
-rule.dayOfWeek = 0; // Sunday (adjust as needed)
+rule.dayOfWeek = 0; // Sunday
+rule.hour = 0; // 0 AM
+rule.minute = 0; // 0 minutes
 
-// Schedule the task to reset balances every 7 days
+// Schedule the task
 schedule.scheduleJob(rule, async function () {
   try {
     // Find all users and update their balances to 30000
