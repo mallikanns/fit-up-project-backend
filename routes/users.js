@@ -179,7 +179,7 @@ router.post('/login', async (req, res, next) => {
 
     // Generate a JWT token with the custom payload
     const token = await jwt.sign(payload, process.env.SECRET_KEY, {
-      expiresIn: '1h', // Token will expire in 1 hour
+      expiresIn: '1d', // Token will expire in 1 day
     });
 
     // Set the token in the response header
