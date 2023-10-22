@@ -73,7 +73,6 @@ const UserSchemamm = new mongoose.Schema({
   },
   balance: {
     type: Number,
-    default: 30000,
   },
   user_status: {
     type: Number,
