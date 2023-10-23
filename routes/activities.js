@@ -15,7 +15,7 @@ router.get('/', verifyToken, async (req, res, next) => {
 
 router.get('/:id', verifyToken, async (req, res, next) => {
   try {
-    const activities = await Activity.find({ activity_userID: req.params.id });
+    const activities = await Activity.find({ _id: req.params.id });
     res.json(activities);
   } catch (err) {
     next(err);
@@ -39,6 +39,7 @@ router.get('/getToday/:id', verifyToken, async (req, res, next) => {
         $gte: startDate,
         $lte: endDate,
       },
+      activity_status: 1, // Adding the condition for activity_status
     });
 
     res.json(activities);
@@ -71,6 +72,22 @@ router.post('/', verifyToken, async (req, res, next) => {
   try {
     const activities = await Activity.create(req.body);
     res.json(activities);
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.put('/:id', verifyToken, async (req, res, next) => {
+  try {
+    const updatedActivity = await Activity.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
+    if (!updatedActivity) {
+      return res.status(404).json({ message: 'Activity not found' });
+    }
+    res.json(updatedActivity);
   } catch (err) {
     next(err);
   }
