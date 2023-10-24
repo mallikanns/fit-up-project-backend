@@ -252,16 +252,15 @@ router.post('/delete-coin/:id', verifyToken, async (req, res) => {
 
     // Check if the user's balance is greater than or equal to the amount to delete
     if (user.user_coin !== 0) {
-      if (user.user_coin > coinDelete) {
-        user.user_coin -= coinDelete;
-        user.balance += coinDelete;
-      } else if (user.user_coin < coinDelete) {
-        user.user_coin = 0;
-        user.balance += coinDelete;
-      }
+      user.user_coin -= coinDelete;
+      user.balance += coinDelete;
 
       if (user.balance > 30000) {
         user.balance = 30000;
+      }
+
+      if (user.user_coin < 0) {
+        user.user_coin = 0;
       }
 
       // Save the updated user document
