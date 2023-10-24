@@ -238,4 +238,44 @@ router.post('/update-coin/:id', verifyToken, async (req, res) => {
   }
 });
 
+router.post('/delete-coin/:id', verifyToken, async (req, res) => {
+  try {
+    const { coinDelete } = req.body;
+    const userId = req.params.id;
+
+    // Find the user by their ID
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Check if the user's balance is greater than or equal to the amount to delete
+    if (user.user_coin !== 0) {
+      if (user.user_coin > coinDelete) {
+        user.user_coin -= coinDelete;
+        user.balance += coinDelete;
+      } else if (user.user_coin < coinDelete) {
+        user.user_coin = 0;
+        user.balance += coinDelete;
+      }
+
+      if (user.balance > 30000) {
+        user.balance = 30000;
+      }
+
+      // Save the updated user document
+      await user.save();
+
+      return res.json({ message: 'Coin updated successfully' });
+    } else {
+      return res.json({
+        message: 'Error Coin is 0.',
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({ message: 'Server error' });
+  }
+});
+
 module.exports = router;
