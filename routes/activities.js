@@ -26,9 +26,9 @@ router.get('/getToday/:id', verifyToken, async (req, res, next) => {
   try {
     const startDate = new Date();
     startDate.setUTCHours(0, 0, 0, 0);
-    const endDate = new Date();
-    endDate.setUTCHours(0, 0, 0, 0);
-    endDate.setDate(startDate.getDate() + 1);
+    const endDate = new Date(startDate);
+
+    endDate.setDate(startDate.getDate() + 1); 
 
     console.log('startDate', startDate.toISOString());
     console.log('endDate', endDate.toISOString());
@@ -37,9 +37,9 @@ router.get('/getToday/:id', verifyToken, async (req, res, next) => {
       activity_userID: req.params.id,
       activity_date: {
         $gte: startDate,
-        $lte: endDate,
+        $lt: endDate, 
       },
-      activity_status: 1, // Adding the condition for activity_status
+      activity_status: 1, 
     });
 
     res.json(activities);
@@ -47,6 +47,7 @@ router.get('/getToday/:id', verifyToken, async (req, res, next) => {
     next(err);
   }
 });
+
 
 router.get('/getWithDate/:id', verifyToken, async (req, res, next) => {
   try {
