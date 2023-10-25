@@ -28,18 +28,15 @@ router.get('/getToday/:id', verifyToken, async (req, res, next) => {
     startDate.setUTCHours(0, 0, 0, 0);
     const endDate = new Date(startDate);
 
-    endDate.setDate(startDate.getDate() + 1); 
-
-    console.log('startDate', startDate.toISOString());
-    console.log('endDate', endDate.toISOString());
+    endDate.setDate(startDate.getDate() + 1);
 
     const activities = await Activity.find({
       activity_userID: req.params.id,
       activity_date: {
         $gte: startDate,
-        $lt: endDate, 
+        $lt: endDate,
       },
-      activity_status: 1, 
+      activity_status: 1,
     });
 
     res.json(activities);
@@ -48,18 +45,16 @@ router.get('/getToday/:id', verifyToken, async (req, res, next) => {
   }
 });
 
-
 router.get('/getWithDate/:id', verifyToken, async (req, res, next) => {
   try {
-    const startDate = new Date(req.body.startDate); // Get the start date from query parameters
-    const endDate = new Date(req.body.endDate); // Get the end date from query parameters
+    const startDate = new Date(req.body.startDate);
+    const endDate = new Date(req.body.endDate);
 
-    // Construct a custom query to find activities within the specified date range
     const activities = await Activity.find({
-      activity_userID: req.params.id, // Filter by userID (assuming it's in the route parameter)
+      activity_userID: req.params.id,
       activity_date: {
-        $gte: startDate, // Greater than or equal to the start date
-        $lte: endDate, // Less than or equal to the end date
+        $gte: startDate,
+        $lte: endDate,
       },
     });
 
@@ -103,13 +98,13 @@ router.delete('/:id', verifyToken, async (req, res, next) => {
   }
 });
 
-router.get('/weekly-activity/:userId', async (req, res) => {
+router.get('/weekly-activity/:userId', verifyToken, async (req, res) => {
   const userId = req.params.userId;
   const today = new Date();
-  const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay())); // Get the starting date of the current week (Sunday)
+  const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay()));
 
   const endOfWeek = new Date(today);
-  endOfWeek.setDate(startOfWeek.getDate() + 6); // Get the ending date of the current week (Saturday)
+  endOfWeek.setDate(startOfWeek.getDate() + 6);
 
   try {
     const result = await Activity.aggregate([
