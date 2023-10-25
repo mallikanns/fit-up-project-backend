@@ -102,4 +102,43 @@ router.delete('/:id', verifyToken, async (req, res, next) => {
   }
 });
 
+router.get('/weekly-activity/:userId', async (req, res) => {
+  const userId = req.params.userId;
+  const today = new Date();
+  const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay())); // Get the starting date of the current week (Sunday)
+
+  const endOfWeek = new Date(today);
+  endOfWeek.setDate(startOfWeek.getDate() + 6); // Get the ending date of the current week (Saturday)
+
+  try {
+    const result = await Activity.aggregate([
+      {
+        $match: {
+          $and: [
+            { activity_userID: userId },
+            { activity_date: { $gte: startOfWeek, $lte: endOfWeek } },
+          ],
+        },
+      },
+      {
+        $group: {
+          _id: {
+            day: { $dayOfWeek: '$activity_date' },
+          },
+          totalDuration: { $sum: '$activity_duration' },
+        },
+      },
+      {
+        $sort: {
+          '_id.day': 1,
+        },
+      },
+    ]);
+
+    res.json({ result });
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 module.exports = router;
