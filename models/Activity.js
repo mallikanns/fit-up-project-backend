@@ -13,7 +13,7 @@ const ActivitySchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  activity_desc: String, // This field is optional
+  activity_desc: String,
   activity_duration: {
     type: Number,
     required: true,

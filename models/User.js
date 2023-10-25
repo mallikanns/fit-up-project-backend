@@ -105,14 +105,12 @@ UserSchemamm.pre('save', async function (next) {
   }
 
   if (this.updates === 0 && this.lastUpdateTimestamp === undefined) {
-    // First update, or no previous update
     this.updates = 1;
   } else if (this.updates === 1) {
     this.updates = 0;
     this.lastUpdateTimestamp = new Date();
     return next();
   } else {
-    // Check if it's been 7 days since the last update
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
@@ -122,7 +120,6 @@ UserSchemamm.pre('save', async function (next) {
       );
     }
 
-    // Reset the cooldown period
     this.updates = 0;
   }
 
