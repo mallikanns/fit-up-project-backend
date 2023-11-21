@@ -32,7 +32,7 @@ https://fit-up-project.vercel.app/
 - [@kongtuk2539](https://github.com/kongtuk2539)
 - [@mallikanns](https://github.com/mallikanns)
 - [@Jinbe2543](https://github.com/Jinbe2543)
-- [@Tiiilis](https://github.com/Tiiilis)
+- [@Pathompat-m](https://github.com/Pathompat-m)
 - [@isansa](https://github.com/isansa)
 
 ## API Reference
